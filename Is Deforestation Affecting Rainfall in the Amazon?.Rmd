@@ -1,0 +1,60 @@
+---
+title: "Is Deforestation Affecting Rainfall in the Amazon?"
+output: html_document
+date: "2022-12-17"
+---
+Welcome to my analysis of deforestation and precipitation in the Amazon. My hypothesis is that as the area of Amazon rainforest decreases, precipitation also decreases. 
+
+I used 2 public data sets by Fabio Potsch and Mariana Boger Netto hosted on Kaggle to generally test this hypothesis via data analysis. 
+
+```{r}
+install.packages("tidyverse")
+library(tidyverse)
+precipitation_data <- read.csv("precipitation.csv")
+deforestation_data <- read.csv("deforestation_amazon.csv") 
+```
+
+After reading the data in R, I had to properly format and clean the data. To do this, I filtered the precipitation data to include only the Brazilian states that encompassed the Amazon and summed the data for each year. I also made sure both datasets had the same time range (2004-2017).
+
+
+```{r}
+precipitation_amazon <- filter(precipitation_data, state == "AP"| state == "AM"|state == "MA"|state == "MT" | state == "RR" | state == "RO"| state == "TO")
+
+precipitation_amazon <- separate(precipitation_amazon, col = date, into=c("day", "month", "year"), sep = "/")
+colnames(deforestation_data)[1] = "Year"
+deforestation_amazon_range <- filter(deforestation_data, Year == "2004"| Year=="2005"|Year=="2006"|Year=="2007"|Year=="2008"|Year=="2009"|Year=="2010"|Year=="2011"|Year=="2012"|Year=="2013"|Year=="2014"|Year=="2015"|Year=="2016"|Year=="2017")
+precipitation_amazon <- precipitation_amazon[,c(1, 4, 5)]
+deforestation_amazon <- deforestation_amazon_range[,c(1, 11)]
+
+precipitation_amazon <- filter(precipitation_amazon, year == "2004"| year=="2005"|year=="2006"|year=="2007"|year=="2008"|year=="2009"|year=="2010"|year=="2011"|year=="2012"|year=="2013"|year=="2014"|year=="2015"|year=="2016"|year=="2017")
+precipitation_2004 <- sum(precipitation_amazon$precipitation[precipitation_amazon$year=="2004"])
+precipitation_2005 <- sum(precipitation_amazon$precipitation[precipitation_amazon$year=="2005"])
+precipitation_2006 <- sum(precipitation_amazon$precipitation[precipitation_amazon$year=="2006"])
+precipitation_2007 <- sum(precipitation_amazon$precipitation[precipitation_amazon$year=="2007"])
+precipitation_2008 <- sum(precipitation_amazon$precipitation[precipitation_amazon$year=="2008"])
+precipitation_2009 <- sum(precipitation_amazon$precipitation[precipitation_amazon$year=="2009"])
+precipitation_2010 <- sum(precipitation_amazon$precipitation[precipitation_amazon$year=="2010"])
+precipitation_2011 <- sum(precipitation_amazon$precipitation[precipitation_amazon$year=="2011"])
+precipitation_2012 <- sum(precipitation_amazon$precipitation[precipitation_amazon$year=="2012"])
+precipitation_2013 <- sum(precipitation_amazon$precipitation[precipitation_amazon$year=="2013"])
+precipitation_2014 <- sum(precipitation_amazon$precipitation[precipitation_amazon$year=="2014"])
+precipitation_2015 <- sum(precipitation_amazon$precipitation[precipitation_amazon$year=="2015"])
+precipitation_2016 <- sum(precipitation_amazon$precipitation[precipitation_amazon$year=="2016"])
+precipitation_2017 <- sum(precipitation_amazon$precipitation[precipitation_amazon$year=="2017"])
+total_yearly_precipiation <- c(precipitation_2004, precipitation_2005, precipitation_2006, precipitation_2007, precipitation_2008, precipitation_2009, precipitation_2010, precipitation_2011, precipitation_2012, precipitation_2013, precipitation_2014, precipitation_2015, precipitation_2016, precipitation_2017)
+total_amazon_data <- data.frame(deforestation_amazon$Year, total_yearly_precipiation, deforestation_amazon$AMZ.LEGAL)
+colnames(total_amazon_data)[1] = "Year"
+colnames(total_amazon_data)[2] = "Precipitation"
+colnames(total_amazon_data)[3] = "Amazon_Area"
+```
+
+I am a very visual person and it is easiest for me to answer data questions with visualizations. In turn, I made a plot for my data to compare the trends of deforestation and precipitation in the Amazon from 2004-2017. 
+
+```{r}
+amazon_plot <- ggplot(data=total_amazon_data, mapping=aes(x=Year)) + geom_line(mapping=aes(x=Year, y=Amazon_Area, color = "Area")) + geom_line(mapping=aes(x=Year, y=Precipitation, color = "Precipitation")) + ggtitle("Amazonian Deforestation and Rainfall") + xlab("Year") + ylab(" ") 
+plot(amazon_plot)
+```
+
+
+
+Though it is clear that both variables are trending down within the time frame, I do not think we have enough evidence to conclude whether or not deforestation has an affect on precipitation in the Amazon. Further investigation is needed.
